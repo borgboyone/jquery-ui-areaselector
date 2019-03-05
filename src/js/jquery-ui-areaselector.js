@@ -567,7 +567,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	_createUI: function() {
 		var appendTo = !this.options.appendTo || this.options.appendTo === "self" ? this.element : (this.options.appendTo === "parent" ? this.element.parent() : $(this.options.appendTo)),
 			helper = $(
-			'<div class="ui-areaselector-overlay" style="position:absolute;visibility:hidden;width:' + this.width + 'px;height:' + this.height + 'px;">' + 
+			'<div class="ui-areaselector-overlay' + (this.options.hideMask ? ' ui-areaselector-hidemask' : '') + '" style="position:absolute;visibility:hidden;width:' + this.width + 'px;height:' + this.height + 'px;">' + 
 				'<div class="ui-areaselector-selectedarea" style="display:none;"></div>' +
  				'<div class="ui-areaselector-mask ui-areaselector-mask-top"></div>' +
 				'<div class="ui-areaselector-mask ui-areaselector-mask-left"></div>' +
