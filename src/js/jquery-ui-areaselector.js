@@ -1,4 +1,3 @@
-"use strict";
 (function( factory ) {
 	if ( typeof define === "function" && define.amd ) {
 
@@ -34,6 +33,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		'minSelectionSize': null,
 		'maxSelectionSize': null,
 		'enableKeyboard': false,
+		'hideMask': false,
 		'start': null,
 		'resize': null,
 		'drag': null,
@@ -249,6 +249,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		//this._validateOption?
 		this._super(key, value);
 		if ( key === "visible" ) this._setOptionVisible( value );
+		else if ( key === "hideMask" ) this._setOptionHideMask( value );
 	},
 	_setOptionDisabled: function( value ) {
 		this._super();
@@ -269,6 +270,13 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		} else {
 			this.stop();
 			this.helper.css('visibility', 'hidden');
+		}
+	},
+	_setOptionHideMask: function( value ) {
+		if ( value ) {
+			this._addClass(this.helper, 'ui-areaselector-hidemask');
+		} else {
+			this._removeClass(this.helper, 'ui-areaselector-hidemask');
 		}
 	},
 	/** Publically Accessible Functions **/

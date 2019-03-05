@@ -10,6 +10,9 @@
 	opacity: 0.5;
 	background-color: black;
 }
+.ui-areaselector-overlay.ui-areaselector-hidemask .ui-areaselector-mask {
+	visibility: hidden;
+}
 .ui-areaselector-overlay .ui-resizable-handle-anchor {
 	width:7px;
 	height:7px;
