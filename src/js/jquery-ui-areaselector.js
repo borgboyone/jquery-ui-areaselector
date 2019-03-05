@@ -51,7 +51,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		if (this.capture) {
 			this.temporarySelection = this.selection;
 			// this.proxy = true?
-			var selection = this._processSelection({x:Math.round((event.pageX - this.position.left - this.gutter.left) / this.scaleX), y:Math.round((event.pageY - this.position.top - this.gutter.left) / this.scaleY), width:1, height:1});
+			this._processSelection({x:Math.round((event.pageX - this.position.left - this.gutter.left) / this.scaleX), y:Math.round((event.pageY - this.position.top - this.gutter.left) / this.scaleY), width:1, height:1});
 			this._updateUI();
 			this.helper.find('.ui-areaselector-selectedarea').focus();
 			this.pageX = event.pageX; this.pageY = event.pageY;
@@ -90,6 +90,15 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		// validate options (there is no easy way to validate the user supplied options alone in the jquery ui widget framework)
 		// overriding _createWidget would allow for this but it's not guaranteed that this function will be available
 		this.processedOptions = this._validateOptions( this.options );
+
+		this.appendTo = !this.options.appendTo || this.options.appendTo === "self"
+			? this.element : (this.options.appendTo === "parent" ? this.element.parent() : $(this.options.appendTo));
+
+		// Wrap appendTo if it cannot hold child nodes
+		if ( this.appendTo[ 0 ].nodeName.match( /^(canvas|textarea|input|select|button|img)$/i ) ) {
+			this.appendToWrapped = this.appendTo;
+			this.appendTo = this._wrap( this.appendTo );
+		}
 
 		// set-up working environment variables
 		this._setUpEnvironment();
@@ -170,7 +179,6 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 
 		this._mouseInit();
 
-		// can we implement this using the $.ui.plugin.add feature?  I don't think so
 		if (this.options.enableKeyboard) {
 			var keyHandler = function(event) {
 				// return false if the keyCode doesn't match the events we handle
@@ -459,11 +467,11 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	_setUpEnvironment: function() {
 		var o = this.processedOptions;
 
-		this.position = this.element.position();
-		this.gutter = {left: (parseFloat(this.element.css('border-left-width')) || 0) + (parseFloat(this.element.css('margin-left')) || 0), top: (parseFloat(this.element.css('border-top-width')) || 0) + (parseFloat(this.element.css('margin-top')) || 0)};
+		this.position = this.appendTo.position();
+		this.gutter = {left: (parseFloat(this.appendTo.css('border-left-width')) || 0) + (parseFloat(this.appendTo.css('margin-left')) || 0), top: (parseFloat(this.appendTo.css('border-top-width')) || 0) + (parseFloat(this.appendTo.css('margin-top')) || 0)};
 
-		this.width = this.element.innerWidth();
-		this.height = this.element.innerHeight();
+		this.width = this.appendTo.innerWidth();
+		this.height = this.appendTo.innerHeight();
 		this.scaleX = o.unscaledSize ? this.width / o.unscaledSize['width'] : 1;
 		this.scaleY = o.unscaledSize ? this.height / o.unscaledSize['height'] : 1;
 		this.minSelectionSize = o.minSelectionSize ? {'width': o.minSelectionSize['width'] ? Math.min(this.width, o.minSelectionSize['width'] * this.scaleX) : null, 'height': o.minSelectionSize['height'] ? Math.min(this.height, o.minSelectionSize['height'] * this.scaleY) : null} : null;
@@ -565,8 +573,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		return {width:width, height:height};
 	},
 	_createUI: function() {
-		var appendTo = !this.options.appendTo || this.options.appendTo === "self" ? this.element : (this.options.appendTo === "parent" ? this.element.parent() : $(this.options.appendTo)),
-			helper = $(
+		var helper = $(
 			'<div class="ui-areaselector-overlay' + (this.options.hideMask ? ' ui-areaselector-hidemask' : '') + '" style="position:absolute;visibility:hidden;width:' + this.width + 'px;height:' + this.height + 'px;">' + 
 				'<div class="ui-areaselector-selectedarea" style="display:none;"></div>' +
  				'<div class="ui-areaselector-mask ui-areaselector-mask-top"></div>' +
@@ -575,22 +582,16 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 				'<div class="ui-areaselector-mask ui-areaselector-mask-bottom"></div>' +
 			'</div>');
 
-		// Wrap appendTo if it cannot hold child nodes
-		if ( appendTo[ 0 ].nodeName.match( /^(canvas|textarea|input|select|button|img)$/i ) ) {
-			this.appendToWrapped = appendTo;
-			appendTo = this._wrap( appendTo );
-		}
-
-		if ( !/^relative|absolute|fixed$/.test(appendTo.css('position')) )
+		if ( !(/^relative|absolute|fixed$/).test(this.appendTo.css('position')) )
 			helper.css({left: this.position.left, top: this.position.top, 'margin-left': this.gutter.left, 'margin-top': this.gutter.top});
 
 		// allow selectedarea to be focusable
 		/*this._focusable(*/helper.find('.ui-areaselector-selectedarea').attr('tabindex', -1)/*)*/;
 
-		this.helper = helper.appendTo(appendTo);
+		this.helper = helper.appendTo(this.appendTo);
 	},
 	_updateOverlay: function() {
-		if ( !/^relative|absolute|fixed$/.test(this.helper.parent().css('position')) )
+		if ( !(/^relative|absolute|fixed$/).test(this.helper.parent().css('position')) )
 			this.helper.css({left: this.position.left, top: this.position.top, 'margin-left': this.gutter.left, 'margin-top': this.gutter.top});
 	},
 	// call this to initialize the UI as well!
