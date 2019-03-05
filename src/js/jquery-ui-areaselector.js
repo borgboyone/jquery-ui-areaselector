@@ -34,11 +34,12 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		'maxSelectionSize': null,
 		'enableKeyboard': false,
 		'hideMask': false,
+		/* callbacks */
 		'start': null,
 		'resize': null,
 		'drag': null,
-		'move': null,
-		'stop': null
+		'stop': null,
+		'move': null
 	},
 	/** Mouse Functions **/
 	_mouseCapture: function( event ) {
@@ -443,8 +444,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	_validateSelection: function( selection ) {
 		if (selection) {
 			if (typeof selection === "string") {
-				if (!['all', 'auto', 'none'].includes(selection))
-					throw new Error("Option 'initialSelection' must be one of 'all', 'auto', or 'none'");
+				if (!['auto', 'none'].includes(selection))
+					throw new Error("Option 'initialSelection' must be one of 'auto', or 'none'");
 				return selection;
 			} else if ( (typeof selection === "object") && !Array.isArray(selection) ) {
 				if ( !(('x' in selection) && this._isStrictInteger(selection['x']) && ('y' in selection) && this._isStrictInteger(selection['y'])
@@ -492,9 +493,9 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	},
 	_processSelection: function( selection ) {
 		if ( selection ) {
-			if ((selection === 'all' && this.aspectRatio !== null) || (selection === 'auto' && this.aspectRatio === null)) {
+			if ( selection === 'auto' && this.aspectRatio === null ) {
 				this.selection = {'x':0,'y':0,'width':this.width,'height':this.height};
-			} else if ( (selection === 'all') || (selection === 'auto') ) { // autoCrop based on aspectRatio
+			} else if ( (selection === 'auto') ) { // autoCrop based on aspectRatio
 				var largestRectangle = this._adjustForAspectRatio( {width:this.width, height:this.height} );
 				this.selection = this._processSelection({'x': (this.width - largestRectangle['width']) / 2, 'y': (this.height - largestRectangle['height']) / 2, 'width': largestRectangle['width'], 'height': largestRectangle['height']});
 			} else if (selection == 'none') {
