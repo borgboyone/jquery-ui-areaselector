@@ -1,0 +1,87 @@
+/*! jQuery UI AreaSelector - v1.0.0 */
+
+.ui-areaselector-overlay .ui-areaselector-selectedarea {
+	position: absolute;
+	border: 0.5px dashed #AAA;
+	/*overflow: hidden;*/
+}
+.ui-areaselector-overlay .ui-areaselector-mask {
+	position: absolute;
+	opacity: 0.5;
+	background-color: black;
+}
+.ui-areaselector-overlay .ui-resizable-handle-anchor {
+	width:7px;
+	height:7px;
+	background-color:#AAA;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-e, .ui-areaselector .ui-resizable-handle.ui-resizable-w {
+	top: 7px;
+	width: 7px;
+	height: calc(100% - 14px);
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-n, .ui-areaselector .ui-resizable-handle.ui-resizable-s {
+	left: 7px;
+	width: calc(100% - 14px);
+	height: 7px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-n > .ui-resizable-handle-anchor {
+	position:absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 2.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-e > .ui-resizable-handle-anchor {
+	position:absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	margin-left: -2.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-s > .ui-resizable-handle-anchor {
+	position:absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: -2.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-w > .ui-resizable-handle-anchor {
+	position:absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	margin-left: 2.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-n {
+	cursor: n-resize;
+	top: -3px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-s {
+	cursor: s-resize;
+	bottom: -3px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-w {
+	cursor: w-resize;
+	left: -3px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-e {
+	cursor: e-resize;
+	right: -3px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-nw {
+	cursor: nw-resize;
+	left: -0.5px;
+	top: -0.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-sw {
+	cursor: sw-resize;
+	left: -0.5px;
+	bottom: -0.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-ne {
+	cursor: ne-resize;
+	right: -0.5px;
+	top: -0.5px;
+}
+.ui-areaselector-overlay .ui-resizable-handle.ui-resizable-se {
+	cursor: se-resize;
+	right: -0.5px;
+	bottom: -0.5px;
+}
