@@ -47,11 +47,14 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	},
 	_mouseDown: function( event ) {
 		if (this.options.disabled) return false;
-		this.capture = !(this.helper.find('.ui-areaselector-selectedarea')[0] === event.target || $.contains( this.helper.find('.ui-areaselector-selectedarea')[0], event.target ) ) && (event.which === 1);
+		this.capture = !( this.helper.find('.ui-areaselector-selectedarea')[0] === event.target 
+			|| $.contains( this.helper.find('.ui-areaselector-selectedarea')[0], event.target ) ) 
+			&& ( event.which === 1 );
 		if (this.capture) {
 			this.temporarySelection = this.selection;
 			// this.proxy = true?
-			this._processSelection({x:Math.round((event.pageX - this.position.left - this.gutter.left) / this.scaleX), y:Math.round((event.pageY - this.position.top - this.gutter.left) / this.scaleY), width:1, height:1});
+			this._processSelection( {x:Math.round((event.pageX - this.position.left - this.gutter.left) / this.scaleX), 
+				y:Math.round((event.pageY - this.position.top - this.gutter.left) / this.scaleY), width:1, height:1} );
 			this._updateUI();
 			this.helper.find('.ui-areaselector-selectedarea').focus();
 			this.pageX = event.pageX; this.pageY = event.pageY;
@@ -60,8 +63,10 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	},
 	// if _mouseUp and capture && not _mouseStart, selection to null? or if capture capture = true?
 	_mouseStart: function( event ) {
-		event.pageX = event.pageX - this.pageX + (this.selection.width + this.selection.x) - (this.pageX - this.position.left - this.gutter.left); // difference between areaWidth and displacedWidth from mouseDown ((selection.width + selection.x) - this.pageX)
-		event.pageY = event.pageY - this.pageY + (this.selection.height + this.selection.y) - (this.pageY - this.position.top - this.gutter.top);
+		event.pageX = event.pageX - this.pageX + (this.selection.width + this.selection.x) 
+			- (this.pageX - this.position.left - this.gutter.left); // difference between areaWidth and displacedWidth from mouseDown ((selection.width + selection.x) - this.pageX)
+		event.pageY = event.pageY - this.pageY + (this.selection.height + this.selection.y) 
+			- (this.pageY - this.position.top - this.gutter.top);
 		event.target = this.helper.find('.ui-areaselector-selectedarea');
 		var resizable = event.target.resizable('instance');
 		resizable.axis = 'se'; // might be able to set this based on the difference compared to this.selection.height, etc...
@@ -107,6 +112,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 
 		// create UI and initialize UI elements based on options
 		this._createUI();
+		this.originalElement = this.element;
+		this.element = this.helper;
 		this._updateUI();
 
 		// set-up resizable and draggable
@@ -122,17 +129,20 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 				minHeight: this.minSelectionSize && this.minSelectionSize['height'] ? this.minSelectionSize['height'] : null,
 				// we don't need start if we set up the mask in mouseDown (verify this) We'll still need the trigger
 				start: function( event, ui ) {
-					areaSelector.originalSelection =  'proxyOriginalSelector' in areaSelector ? areaSelector.proxyOriginalSelector : areaSelector.selection;
+					areaSelector.originalSelection =  'proxyOriginalSelector' in areaSelector 
+						? areaSelector.proxyOriginalSelector : areaSelector.selection;
 					delete areaSelector.proxyOriginalSelector;
-					var selection = {'x': ui.position['left'], 'y': ui.position['top'], 'width': ui.size['width'], 'height': ui.size['height']};
+					var selection = {'x': ui.position['left'], 'y': ui.position['top'], 
+						'width': ui.size['width'], 'height': ui.size['height']};
 					if (areaSelector._trigger("start", event, {action:"resize", selection:selection, originalSelection:areaSelector.originalSelection}) === false)
 						return false;
-					areaSelector.element.addClass('ui-areaselector-selecting');
+					areaSelector.originalElement.addClass('ui-areaselector-selecting');
 					areaSelector.selection = selection;
 					areaSelector._updateUI(true);
 				},
 				resize: function( event, ui ) {
-					var selection = {'x': ui.position['left'], 'y': ui.position['top'], 'width': Math.max(ui.size['width'], 0), 'height': Math.max(ui.size['height'], 0)};
+					var selection = {'x': ui.position['left'], 'y': ui.position['top'], 
+						'width': Math.max(ui.size['width'], 0), 'height': Math.max(ui.size['height'], 0)};
 					// should we get the result from _trigger before updating the UI?  Allow for false and then cancel?
 					if (areaSelector._trigger("resize", event, {action:"resize", selection:selection, originalSelection:areaSelector.originalSelection}) === false)
 						return false;
@@ -143,7 +153,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 					if (areaSelector._trigger("stop", event, {action:"resize", selection:areaSelector.selection, originalSelection:areaSelector.originalSelection}) === false)
 						return false;
 
-					areaSelector.element.removeClass('ui-areaselector-selecting');
+					areaSelector.originalElement.removeClass('ui-areaselector-selecting');
 					if ((areaSelector.selection['width'] === 0) || (areaSelector.selection['height'] === 0)) {
 						areaSelector.selection = null;
 						areaSelector._updateUI();
@@ -159,7 +169,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 					var selection = {'x': ui.position['left'], 'y': ui.position['top'], 'width': areaSelector.selection['width'], 'height': areaSelector.selection['height']};
 					if (areaSelector._trigger("start", event, {action:"drag", selection:selection, originalSelection:areaSelector.originalSelection}) === false)
 						return false;
-					areaSelector.element.addClass('ui-areaselector-selecting');
+					areaSelector.originalElement.addClass('ui-areaselector-selecting');
 					areaSelector.selection = selection;
 					areaSelector._updateUI(true);
 				},
@@ -173,7 +183,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 				stop: function( event, ui ) {
 					if (areaSelector._trigger("stop", event, {action:"drag", selection:areaSelector.selection, originalSelection:areaSelector.originalSelection}) === false)
 						return false;
-					areaSelector.element.removeClass('ui-areaselector-selecting');
+					areaSelector.originalElement.removeClass('ui-areaselector-selecting');
 				}
 			});
 
@@ -184,7 +194,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 				// return false if the keyCode doesn't match the events we handle
 				if ( ![$.ui.keyCode.ESCAPE, $.ui.keyCode.UP, $.ui.keyCode.DOWN, $.ui.keyCode.LEFT, $.ui.keyCode.RIGHT].includes(event.keyCode) ) return false;
 
-				var active = this.element.is(".ui-areaselector-selecting");
+				var active = this.originalElement.is(".ui-areaselector-selecting");
 				if ((active && [$.ui.keyCode.UP, $.ui.keyCode.DOWN, $.ui.keyCode.LEFT, $.ui.keyCode.RIGHT].includes(event.keyCode)) || (!active && [$.ui.keyCode.ESCAPE].includes(event.keyCode))) return false;
 
 				if ( event.keyCode === $.ui.keyCode.ESCAPE ) {
@@ -251,6 +261,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		selectedArea.resizable('instance').destroy(); // not really necessary
 		this.helper = this.helper.remove();
 		if (this.appendToWrapped) this._unwrap( this.appendToWrapped );
+		this.element = this.originalElement;
 		this.element.removeClass('ui-areaselector');
 		this._super();
 	},
@@ -316,7 +327,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		}
 	},
 	stop: function() {
-		if (this.element.is(".ui-areaselector-selecting")) {
+		if (this.originalElement.is(".ui-areaselector-selecting")) { // selecting()?
 			var selectedArea = this.helper.find('.ui-areaselector-selectedarea');
 			if (selectedArea.is(".ui-resizable-resizing")) {
 				selectedArea.resizable('instance').cancel();
@@ -326,11 +337,11 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 			// CHECK: if (this.capture) we may need to issue mouseUp here
 			this.capture = false;
 
-			this.element.removeClass("ui-areaselector-selecting");
+			this.originalElement.removeClass("ui-areaselector-selecting");
 		}
 	},
 	cancel: function() {
-		if (this.element.is(".ui-areaselector-selecting")) {
+		if (this.originalElement.is(".ui-areaselector-selecting")) {
 			this.stop();
 
 			this.selection = this.originalSelection;
@@ -376,7 +387,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 
 		// appendTo
 		if (!o.appendTo) throw new Error("Option 'appendTo' must be a non empty value");
-		if ( !((o.appendTo === "self") || (o.appendTo === "parent")) && ($(o.appendTo).length === 0) ) throw new Error("No DOM element matching option 'appendTo' found in the document");
+		if (!((o.appendTo === "self") || (o.appendTo === "parent")) && ($(o.appendTo).length === 0)) 
+			throw new Error("No DOM element matching option 'appendTo' found in the document");
 
 		// aspectRatio
 		if (o.aspectRatio) {
@@ -386,7 +398,9 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 					po.aspectRatio = {width:parseInt(values[0]), height:parseInt(values[1])};
 				} else throw new Error("Option 'aspectRatio' must be of the form integer:integer");
 			} else if ( (typeof o.aspecRatio === "object") && !Array.isArray(o.aspectRatio)) {
-				if (!(('width' in o.aspectRatio) && this._isStrictPositiveInteger(o.aspectRatio['width']) && (o.aspectRatio['width'] > 0) && ('height' in o.aspectRatio) && this._isStrictPositiveInteger(o.aspectRatio['height']) && (o.aspectRatio['height'] > 0)))
+				if (!(('width' in o.aspectRatio) && this._isStrictPositiveInteger(o.aspectRatio['width']) 
+						&& (o.aspectRatio['width'] > 0) && ('height' in o.aspectRatio) 
+						&& this._isStrictPositiveInteger(o.aspectRatio['height']) && (o.aspectRatio['height'] > 0)))
 					throw new Error("Option 'aspectRatio' must contain both 'width' and 'height' properties with positive integer values greater than zero");
 				po.aspectRatio = {width: o.aspectRatio['width'] + 0, height: o.aspectRatio['height'] + 0};
 			} else if ( typeof o.aspectRatio === "number" ) {
@@ -399,7 +413,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		// unscaledSize
 		if (o.unscaledSize) {
 			if ( !((typeof o.unscaledSize == "object") && ('width' in o.unscaledSize) && ('height' in o.unscaledSize)
-					&& this._isStrictPositiveInteger(o.unscaledSize['width']) && this._isStrictPositiveInteger(o.unscaledSize['height'])
+					&& this._isStrictPositiveInteger(o.unscaledSize['width']) 
+					&& this._isStrictPositiveInteger(o.unscaledSize['height'])
 					&& (o.unscaledSize['width'] > 0) && (o.unscaledSize['height'] > 0)) )
 				throw new Error("Option 'unscaledSize' must contain both 'width' and 'height' properties with positive integer values greater than zero");
 			po.unscaledSize = {width:o.unscaledSize['width'] + 0, height:o.unscaledSize['height'] + 0};
@@ -411,7 +426,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 		// minSelectionSize
 		if (o.minSelectionSize) {
 			// width or height may be omitted, must not be larger than unscaledSize (if provided)
-			if (!((typeof o.minSelectionSize === "object") && (('width' in o.minSelectionSize) || ('height' in o.minSelectionSize))) ||
+			if (!((typeof o.minSelectionSize === "object") && (('width' in o.minSelectionSize) 
+					|| ('height' in o.minSelectionSize))) ||
 					((('width' in o.minSelectionSize) && !this._isStrictInteger(o.minSelectionSize['width']))
 					|| (('height' in o.minSelectionSize) && !this._isStrictInteger(o.minSelectionSize['height']))))
 				throw new Error("Option 'minSelectionSize' must contain either of or both 'width' and 'height' properties with positive integer values");
@@ -441,9 +457,11 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 			po.maxSelectionSize = {width:'width' in o.maxSelectionSize ? o.maxSelectionSize['width'] + 0 : null,
 									height:'height' in o.maxSelectionSize ? o.maxSelectionSize['height'] + 0: null};
 
-			if (po.minSelectionSize && (po.minSelectionSize['width']) && (po.maxSelectionSize['width']) && (po.minSelectionSize['width'] > po.maxSelectionSize['width']))
+			if (po.minSelectionSize && (po.minSelectionSize['width']) && (po.maxSelectionSize['width']) 
+					&& (po.minSelectionSize['width'] > po.maxSelectionSize['width']))
 				throw new Error("Option 'minSelectionSize.width' cannot be larger than 'maxSelectionSize.width");
-			if (po.minSelectionSize && (po.minSelectionSize['height']) && (po.maxSelectionSize['height']) && (po.minSelectionSize['height'] > po.maxSelectionSize['height']))
+			if (po.minSelectionSize && (po.minSelectionSize['height']) && (po.maxSelectionSize['height']) 
+					&& (po.minSelectionSize['height'] > po.maxSelectionSize['height']))
 				throw new Error("Option 'minSelectionSize.height' cannot be larger than 'maxSelectionSize.height");
 		}
 
@@ -456,8 +474,10 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 					throw new Error("Option 'initialSelection' must be one of 'auto', or 'none'");
 				return selection;
 			} else if ( (typeof selection === "object") && !Array.isArray(selection) ) {
-				if ( !(('x' in selection) && this._isStrictInteger(selection['x']) && ('y' in selection) && this._isStrictInteger(selection['y'])
-						&& ('width' in selection) && this._isStrictInteger(selection['width']) && ('height' in selection) && this._isStrictInteger(selection['height'])) )
+				if ( !(('x' in selection) && this._isStrictInteger(selection['x']) && ('y' in selection) 
+						&& this._isStrictInteger(selection['y']) && ('width' in selection) 
+						&& this._isStrictInteger(selection['width']) && ('height' in selection) 
+						&& this._isStrictInteger(selection['height'])) )
 					throw new Error("Option 'initialSelection' must contain 'x', 'y', 'width' and 'height' properties with positive integer values");
 				return {'x': selection['x'] + 0, 'y': selection['y'] + 0, 'width': selection['width'] + 0, 'height': selection['height'] + 0};
 			} else throw new Error("Unknown format for provided option 'initialSelection'");
@@ -505,7 +525,7 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 				this.selection = {'x':0,'y':0,'width':this.width,'height':this.height};
 			} else if ( (selection === 'auto') ) { // autoCrop based on aspectRatio
 				var largestRectangle = this._adjustForAspectRatio( {width:this.width, height:this.height} );
-				this.selection = this._processSelection({'x': (this.width - largestRectangle['width']) / 2, 'y': (this.height - largestRectangle['height']) / 2, 'width': largestRectangle['width'], 'height': largestRectangle['height']});
+				this.selection = {'x': (this.width - largestRectangle['width']) / 2, 'y': (this.height - largestRectangle['height']) / 2, 'width': largestRectangle['width'], 'height': largestRectangle['height']};
 			} else if (selection == 'none') {
 				this.selection = null;
 			} else {
@@ -574,7 +594,8 @@ var areaSelector = $.widget('aw.areaSelector', $.ui.mouse, {
 	},
 	_createUI: function() {
 		var helper = $(
-			'<div class="ui-areaselector-overlay' + (this.options.hideMask ? ' ui-areaselector-hidemask' : '') + '" style="position:absolute;visibility:hidden;width:' + this.width + 'px;height:' + this.height + 'px;">' + 
+			'<div class="ui-areaselector-overlay' + (this.options.hideMask ? ' ui-areaselector-hidemask' : '') + 
+				'" style="position:absolute;visibility:hidden;width:' + this.width + 'px;height:' + this.height + 'px;">' + 
 				'<div class="ui-areaselector-selectedarea" style="display:none;"></div>' +
  				'<div class="ui-areaselector-mask ui-areaselector-mask-top"></div>' +
 				'<div class="ui-areaselector-mask ui-areaselector-mask-left"></div>' +
